@@ -53,33 +53,60 @@ char* DeleteWhiteSpaces2(char* str) {
 		t++;
 	}
 	tmp[t] = '\0';
-	return tmp;
+	char* tmp2=tmp;
+	return tmp2;
 }
+
 int isDigit(char c) {
 	return (c >= '0' && c <= '9');
 }
 
+void append_in_ops(char ops[], char op) {
+	int i = 0;
+	for (; ops[i] != ' ';) {
+		i++;
+	}
+	ops[i] = op;
+	return;
+}
+
+void erase_frm_ops(char ops[]) {
+	int j = 0;
+	for (; ops[j] != ' ';) {
+		j++;
+	}
+	ops[j-1] = ' ';
+	return;
+}
+
+char get_last_f_ops(char ops[]) {
+	int k = 0;
+	for (; ops[k] != ' ';) {
+		k++;
+	}
+	return	ops[k-1];
+}
+
 void getOp(int val[3], char* ops) {
-	if ((val[1] == -1 && val[0] != -1) || (val[0] == -1) || my_strlen(ops)==0) {
+	if ((val[1] == -1 && val[0] != -1) || (val[0] == -1) || ops[0]==' ') {
 		return;
 	}
 	int num1 = -1;
 	int num2 = -1;
 	if (val[2] == -1) {
-		int num1 = val[0];
-		int num2 = val[1];
+		num1 = val[0];
+		num2 = val[1];
 		val[0] = -1;
 		val[1] = -1;
 	}
 	else {
-		int num1 = val[1];
-		int num2 = val[2];
+		num1 = val[1];
+		num2 = val[2];
 		val[2] = -1;
 		val[1] = -1;
 	}
-	char curOp = ops[my_strlen(ops)];
-	ops[my_strlen(ops)] = ' ';
-	free(ops[my_strlen(ops)]);
+	char curOp = get_last_f_ops(ops);
+	erase_frm_ops(ops);
 	switch (curOp) {
 	case '+':
 		if (val[0] == -1) {
@@ -130,19 +157,17 @@ void getOp(int val[3], char* ops) {
 	}
 }
 
+
+
 int calc(char* str) {
-	//char* clc = DeleteWhiteSpaces2(str);
-	char* clc = malloc(100);
-		clc = DeleteWhiteSpaces2(str);
+	char* clc = DeleteWhiteSpaces2(str);
 	int val[3] = {-1,-1,-1};
-	//char* ops = "\0";
-	char* ops = malloc(1);
-	ops[0] = '\0';
-	for (int i = 0; i < my_strlen(clc); i++) {
+	char ops[50] = "                                                 e";
+	for (int i = 0; i < my_strlen(clc);) {
 		if (isDigit(clc[i])) {
 			int tmp = 0;
 			while (isDigit(clc[i])) {
-				tmp = tmp * 10 + (atoi(clc[i]));
+				tmp = tmp * 10 + (clc[i] - '0');
 				i++;
 			}
 			if (val[0]==-1) {
@@ -157,29 +182,27 @@ int calc(char* str) {
 			continue;
 		}
 		else if (clc[i]=='(') {
-			ops = realloc(ops, my_strlen(ops) + 1);
-			ops[my_strlen(ops) + 1] = clc[i];
+			append_in_ops(ops, clc[i]);
+			i++;
 			continue;
 		}
 		else if (clc[i] == ')') {
-			while (my_strlen(ops)!=0 && ops[my_strlen(ops) + 1] != '(') {
+			while (ops[0]!=' ' && get_last_f_ops(ops) != '(') {
 				getOp(val, ops);
 			}
-			ops[my_strlen(ops)] = ' ';
-			free(ops[my_strlen(ops)]);
+			erase_frm_ops(ops);
 			i++;
 			continue;
 		}
 		else {
-			while (my_strlen(ops)!=0 && RangeOp(ops[my_strlen(ops)]) >= RangeOp(clc[i])) {
+			while (ops[0] != ' ' && RangeOp(get_last_f_ops(ops)) >= RangeOp(clc[i])) {
 				getOp(val, ops);
 			}
-			ops = realloc(ops, my_strlen(ops) + 1);
-			ops[my_strlen(ops) + 1] = clc[i];
+			append_in_ops(ops,clc[i]);
 			i++;
 		}
 	}
-	while (my_strlen(ops) != 0) {
+	while (ops[0]!=' ') {
 		getOp(val, ops);
 	}
 	return val[0];
@@ -188,13 +211,9 @@ int calc(char* str) {
 int main()
 {
 	char* str = (char*)malloc(1000);
-
 	fgets(str, 1000, stdin);
 	str[my_strlen(str)] = '\0';
 
-	//int Valid_Val = valid_string(str);
-	//if (Valid_Val == 0) {
-		printf("%d", calc(str));
-	//}
+	printf("%d", calc(str));
 }
 
