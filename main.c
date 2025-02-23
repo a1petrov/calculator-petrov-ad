@@ -208,6 +208,8 @@ int calc(char* str) {
 	return val[0];
 }
 
+//mains
+
 int main()
 {
 	char* str = (char*)malloc(1000);
