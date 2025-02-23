@@ -1,1 +1,0 @@
-# calculator-petrov-ad
